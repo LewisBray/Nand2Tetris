@@ -14,7 +14,13 @@ typedef enum CommandType {
     CMD_LT,
     CMD_AND,
     CMD_OR,
-    CMD_NOT
+    CMD_NOT,
+    CMD_LABEL,
+    CMD_GOTO,
+    CMD_IF_GOTO,
+    CMD_FUNCTION,
+    CMD_CALL,
+    CMD_RETURN
 } CommandType;
 
 typedef enum Segment {
@@ -33,11 +39,34 @@ typedef struct CommandMemoryAccess {
     String index;
 } CommandMemoryAccess;
 
+typedef struct CommandLabel {
+    String name;
+} CommandLabel;
+
+typedef struct CommandJump {
+    String label;
+} CommandJump;
+
+typedef struct CommandFunction {
+    String name;
+    int local_var_count;
+} CommandFunction;
+
+typedef struct CommandCall {
+    String function;
+    int arg_count;
+} CommandCall;
+
 typedef struct Command {
     CommandType type;
     union {
         CommandMemoryAccess push;
         CommandMemoryAccess pop;
+        CommandLabel label;
+        CommandJump go_to;
+        CommandJump if_go_to;
+        CommandFunction function;
+        CommandCall call;
     };
 } Command;
 

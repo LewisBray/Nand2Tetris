@@ -16,12 +16,23 @@
 static const char VM_FILE_EXTENSION[] = "vm";
 static const char ASM_FILE_EXTENSION[] = "asm";
 
+static String remove_file_extension(const char* const file) {
+    String result = construct_string_from_c_string(file);
+    const int dot_index = reverse_find_index_of(result, '.');
+    if (dot_index != -1) {
+        result.count = dot_index;
+    }
+    
+    return result;
+}
+
 int main(const int argc, const char* const argv[]) {
     if (argc != 2) {
         ERROR("Supply the .%s file or a directory as the only argument", VM_FILE_EXTENSION);
     }
     
     const String arg1 = construct_string_from_c_string(argv[1]);
+    
     String dir = {};
     String name = {};
     const int dot_index = reverse_find_index_of(arg1, '.');
@@ -80,11 +91,13 @@ int main(const int argc, const char* const argv[]) {
     }
     
     ASMFile asm_file = {};
-    asm_file.var_base_name = name;
+    asm_file.name = name;
     asm_file.buffer = malloc(ASM_FILE_BUFFER_CAPACITY);
     asm_file.buffer_capacity = ASM_FILE_BUFFER_CAPACITY;
     asm_file.buffer_index = 0;
     asm_file.handle = fopen(asm_file_name, "wb");
+    
+    write_bootstrap_asm(&asm_file);
     
     for (int vm_file_index = 0; vm_file_index < vm_file_names.count; ++vm_file_index) {
         char vm_file_name[4096] = {};
@@ -106,13 +119,15 @@ int main(const int argc, const char* const argv[]) {
         vm_file.position = vm_file_buffer;
         vm_file.end = vm_file_buffer + vm_file_size;
         
+        const String vm_file_name_without_extension = remove_file_extension(vm_file_names.data[vm_file_index]);
+        
         bool parsing = true;
         while (parsing) {
             const Token token = get_next_token(&vm_file);
             switch (token.type) {
                 case TT_IDENTIFIER: {
                     const Command command = parse_command(token.text, &vm_file);
-                    write_asm(&asm_file, &command);
+                    write_asm(&asm_file, &command, vm_file_name_without_extension);
                 } break;
                 
                 case TT_EOF: {
