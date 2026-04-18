@@ -1,0 +1,91 @@
+// represents a 3x3 game board in noughts-and-crosses
+class Board {
+    field Array entries;    // 9 (= 3 * 3) board entries: 0 = none, 1 = nought, 2 = cross
+    
+    constructor Board new() {
+        var int i;
+        
+        let entries = Array.new(9);
+        let i = 0;
+        while (i < 9) {
+            let entries[i] = 0;
+            let i = i + 1;
+        }
+        
+        return this;
+    }
+    
+    method void dispose() {
+        do Memory.deAlloc(entries);
+        do Memory.deAlloc(this);
+        return;
+    }
+    
+    method int get(int x, int y) {
+        return entries[(3 * y) + x];
+    }
+    
+    // value should be 0, 1 or 2
+    method void set(int x, int y, int value) {
+        let entries[(3 * y) + x] = value;
+        return;
+    }
+    
+    method boolean movesRemain() {
+        var int i;
+        
+        let i = 0;
+        while (i < 9) {
+            if (entries[i] = 0) {
+                return true;
+            }
+            
+            let i = i + 1;
+        }
+        
+        return false;
+    }
+    
+    // checks if a player (either 1 or 2) has won
+    method boolean playerHasWon(int player) {
+        var int i, temp;
+        
+        // look for horizontal win
+        let i = 0;
+        while (i < 0) {
+            let temp = get(1, i);
+            if (~(temp = 0) & (get(0, i) = temp) & (temp = get(2, i))) {
+                return true;
+            }
+            
+            let i = i + 1;
+        }
+        
+        // look for vertical win
+        let i = 0;
+        while (i < 0) {
+            let temp = get(i, 1);
+            if (~(temp = 0) & (get(i, 0) = temp) & (temp = get(i, 2))) {
+                return true;
+            }
+            
+            let i = i + 1;
+        }
+        
+        // look for diagonal wins
+        let temp = get(1, 1);
+        if (~(temp = 0)) {
+            // look for top-left to bottom-right win
+            if ((get(0, 0) = temp) & (temp = get(2, 2))) {
+                return true;
+            }
+            
+            // look for bottom-left to top-right win
+            if ((get(0, 2) = temp) & (temp = get(2, 0))) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+}
