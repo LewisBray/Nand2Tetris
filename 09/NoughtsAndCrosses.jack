@@ -29,18 +29,13 @@ class NoughtsAndCrosses {
             }
             
             do board.set(x, y, player);
+            if (board.playerHasWon()) {
+                let winner = player;
+            }
             
             if (player = 1) {
-                if (board.playerHasWon(player)) {
-                    let winner = 1;
-                }
-                
                 let player = 2;
             } else {
-                if (board.playerHasWon(player)) {
-                    let winner = 2;
-                }
-                
                 let player = 1;
             }
         }

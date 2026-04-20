@@ -46,8 +46,8 @@ class Board {
         return false;
     }
     
-    // checks if a player (either 1 or 2) has won
-    method boolean playerHasWon(int player) {
+    // checks if any player has won
+    method boolean playerHasWon() {
         var int i, temp;
         
         // look for horizontal win
