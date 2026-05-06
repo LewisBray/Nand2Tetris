@@ -1,3 +1,11 @@
+// define this if you want the xml output in addition to the vm output.
+// this isn't a brilliant way of doing this, in a more serious project
+// the compilation should maybe output some intermediate representation
+// of functions/objects/etc.. for more serious type + error checking
+// and then the output back-end could be chosen but since the problem
+// is relatively constrained, this will do for finishing this project
+// #define OUTPUT_XML
+
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "string_view.h"
@@ -88,15 +96,23 @@ int main(const int argc, const char* const argv[]) {
     for (int jack_file_index = 0; jack_file_index < jack_file_names.count; ++jack_file_index) {
         char jack_file_name[4096] = {};
         snprintf(jack_file_name, sizeof(jack_file_name), "%.*s/%s", dir.count, dir.data, jack_file_names.data[jack_file_index]);
+        JackFile jack_file = open_jack_file(jack_file_name);
+        
+        Output out = {};
         
         const String name = remove_file_extension(jack_file_names.data[jack_file_index]);
         
+        char vm_file_name[4096] = {};
+        snprintf(vm_file_name, sizeof(vm_file_name), "%.*s/%.*s.%s", dir.count, dir.data, name.count, name.data, "vm");
+        out.vm = fopen(vm_file_name, "wb");
+        
+#ifdef OUTPUT_XML
         char xml_file_name[4096] = {};
         snprintf(xml_file_name, sizeof(xml_file_name), "%.*s/%.*s.%s", dir.count, dir.data, name.count, name.data, "xml");
+        out.xml = fopen(xml_file_name, "wb");
+#endif
         
-        JackFile jack_file = open_jack_file(jack_file_name);
-        FILE* const xml_file = fopen(xml_file_name, "wb");
-        compile(&jack_file, xml_file);
+        compile(&jack_file, &out);
     }
     
     return 0;
